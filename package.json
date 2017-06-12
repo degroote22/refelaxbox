@@ -66,6 +66,8 @@
   },
   "homepage": "https://github.com/jxnblk/reflexbox#readme",
   "dependencies": {
+    "fela": "^5.0.0",
+    "fela-dom": "^5.0.0",
     "prop-types": "^15.5.10"
   }
 }

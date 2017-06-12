@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box } from 'reflexbox'
+import { Box } from '../src'
 import { dark } from './colors'
 
 const Fill = props => (

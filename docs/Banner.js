@@ -1,6 +1,6 @@
 import React from 'react'
 import { connect } from 'funcup'
-import { Flex, Box } from 'reflexbox'
+import { Flex, Box } from '../src'
 import XRay from 'react-x-ray'
 import {
   LiveProvider,
