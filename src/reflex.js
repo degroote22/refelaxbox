@@ -7,9 +7,8 @@ import { createComponent } from 'react-fela'
 const reflex = Component => {
   const Reflex = (props, context) => {
     const config = Object.assign({}, defaultConfig, context.reflexbox)
-    const { next, fela } = css(config)(props)
-    const felaComp = createComponent(() => fela, Component)
-    return React.createElement(felaComp, next)
+    const next = css(config)(props, context)
+    return React.createElement(Component, next)
   }
 
   Reflex.contextTypes = contextTypes

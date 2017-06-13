@@ -1,8 +1,8 @@
 const REG = /^([wmp][trblxy]?|flex|wrap|column|auto|align|justify|order)$/
 
-const css = config => props => {
+const css = config => (props, context) => {
   const next = {}
-  let fela = {}
+  const classNames = []
 
   const breaks = [null, ...config.breakpoints]
   const sx = stylers(config)
@@ -13,10 +13,12 @@ const css = config => props => {
       continue
     }
     const cx = createRule(breaks, sx)(key, val)
-    fela = ({ ...fela, ...cx })
+    classNames.push(context.renderer.renderRule(() => cx))
   }
 
-  return { next, fela }
+  next.className = join(...classNames, props.className)
+
+  return next
 }
 
 css.reset = () => {
