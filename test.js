@@ -3,7 +3,6 @@ const test = require('ava')
 const React = require('react')
 const render = require('react-test-renderer').create
 const {
-  sheet,
   css,
   config,
   ReflexProvider,
@@ -11,19 +10,24 @@ const {
   Flex
 } = require('./src')
 
+const fela = require('fela')
+const renderer = fela.createRenderer()
+const ReactFela = require('react-fela')
+const Provider = ReactFela.Provider
+
 const props = {
   children: 'Hello',
   title: 'Boop',
-  w: [ 1, 1/2, 1/4 ],
+  w: [1, 1 / 2, 1 / 4],
   m: 2,
   flex: true,
   px: 3
 }
 
-const cx = css(config)
+const cx = css({ ...config, renderer })
 
 test.afterEach(t => {
-  css.reset()
+  renderer.clear()
 })
 
 test('css returns props', t => {
@@ -52,39 +56,32 @@ test('css adds a className prop', t => {
 
 test('css inserts styles to sheet', t => {
   const a = cx({ m: 2 })
-  t.is(sheet.cssRules.length, 1)
-  const [ rule ] = sheet.cssRules
-  t.is(rule.style.margin, '16px')
+  const rules = renderer.renderToString()
+  t.snapshot(rules)
 })
 
 test('css inserts responsive styles', t => {
-  const a = css(config)({ m: [ 1, 2 ] })
-  t.is(sheet.cssRules.length, 2)
-  const [ baseRule, mobile ] = sheet.cssRules
-  const [ mobileRule ] = mobile.cssRules
-  t.is(baseRule.style.margin, '8px')
-  t.is(mobileRule.style.margin, '16px')
+  const a = css({ ...config, renderer })({ m: [1, 2] })
+  const rules = renderer.renderToString()
+  t.snapshot(rules)
 })
 
 test('css dedupes repeated styles', t => {
   const a = cx({ p: 2 })
   const b = cx({ p: 2 })
-  t.is(sheet.cssRules.length, 1)
+  const rules = renderer.renderToString()
+  t.snapshot(rules)
   t.deepEqual(a, b)
 })
 
 test('css parses widths', t => {
   const a = cx({ w: 1 })
-  const b = cx({ w: 1/2 })
+  const b = cx({ w: 1 / 2 })
   const c = cx({ w: 0 })
   const d = cx({ w: 24 })
   const e = cx({ w: 'auto' })
-  const rules = sheet.cssRules
-  t.is(rules[0].style.width, '100%')
-  t.is(rules[1].style.width, '50%')
-  t.is(rules[2].style.width, '0%')
-  t.is(rules[3].style.width, '24px')
-  t.is(rules[4].style.width, 'auto')
+  const rules = renderer.renderToString()
+  t.snapshot(rules)
 })
 
 test('css parses margins', t => {
@@ -93,12 +90,8 @@ test('css parses margins', t => {
   cx({ m: 24 })
   cx({ m: -24 })
   cx({ m: 'auto' })
-  const [ a, b, c, d, e ] = sheet.cssRules
-  t.is(a.style.margin, '8px')
-  t.is(b.style.margin, '-16px')
-  t.is(c.style.margin, '24px')
-  t.is(d.style.margin, '-24px')
-  t.is(e.style.margin, 'auto')
+  const rules = renderer.renderToString()
+  t.snapshot(rules)
 })
 
 test('css parses margin directions', t => {
@@ -109,26 +102,16 @@ test('css parses margin directions', t => {
   cx({ ml: 1 })
   cx({ mx: 1 })
   cx({ my: 1 })
-  const [ a, top, r, b, l, x, y  ] = sheet.cssRules
-  t.is(a.style.margin, '8px')
-  t.is(top.style['margin-top'], '8px')
-  t.is(r.style['margin-right'], '8px')
-  t.is(b.style['margin-bottom'], '8px')
-  t.is(l.style['margin-left'], '8px')
-  t.is(x.style['margin-left'], '8px')
-  t.is(x.style['margin-right'], '8px')
-  t.is(y.style['margin-top'], '8px')
-  t.is(y.style['margin-bottom'], '8px')
+  const rules = renderer.renderToString()
+  t.snapshot(rules)
 })
 
 test('css parses paddings', t => {
   cx({ p: 1 })
   cx({ p: 24 })
   cx({ p: '20%' })
-  const [ a, b, c ] = sheet.cssRules
-  t.is(a.style.padding, '8px')
-  t.is(b.style.padding, '24px')
-  t.is(c.style.padding, '20%')
+  const rules = renderer.renderToString()
+  t.snapshot(rules)
 })
 
 test('css parses padding directions', t => {
@@ -139,16 +122,8 @@ test('css parses padding directions', t => {
   cx({ pl: 1 })
   cx({ px: 1 })
   cx({ py: 1 })
-  const [ a, top, r, b, l, x, y  ] = sheet.cssRules
-  t.is(a.style.padding, '8px')
-  t.is(top.style['padding-top'], '8px')
-  t.is(r.style['padding-right'], '8px')
-  t.is(b.style['padding-bottom'], '8px')
-  t.is(l.style['padding-left'], '8px')
-  t.is(x.style['padding-left'], '8px')
-  t.is(x.style['padding-right'], '8px')
-  t.is(y.style['padding-top'], '8px')
-  t.is(y.style['padding-bottom'], '8px')
+  const rules = renderer.renderToString()
+  t.snapshot(rules)
 })
 
 test('css parses flexbox styles', t => {
@@ -161,36 +136,30 @@ test('css parses flexbox styles', t => {
     align: 'center',
     justify: 'space-between'
   })
-  const [ a, b, c, d, e, f, g ] = sheet.cssRules
-  t.is(a.style.display, 'flex')
-  t.is(b.style['flex-wrap'], 'wrap')
-  t.is(c.style['flex-direction'], 'column')
-  t.is(d.style.flex, '1 1 auto')
-  t.is(e.style.order, '5')
-  t.is(f.style['align-items'], 'center')
-  t.is(g.style['justify-content'], 'space-between')
+  const rules = renderer.renderToString()
+  t.snapshot(rules)
 })
 
-test('snapshot', t => {
-  const box = render(<Box />).toJSON()
-  const flex = render(<Flex />).toJSON()
+test('snapshot and fela provider', t => {
+  const box = render(<Provider renderer={renderer}><Box /></Provider>).toJSON()
+  const flex = render(<Provider renderer={renderer}><Flex /></Provider>).toJSON()
   t.snapshot(box)
   t.snapshot(flex)
 })
 
-test('react context', t => {
+test('react context for reflex and fela provider', t => {
   const ctx = {
-    space: [ 0, 6, 12, 18, 24, 30 ],
-    breakpoints: [ 32, 48, 64 ]
+    space: [0, 6, 12, 18, 24, 30],
+    breakpoints: [32, 48, 64]
   }
   const box = render(
-    <ReflexProvider {...ctx}>
-      <Box m={1} w={[ 1, 1/2 ]} />
-    </ReflexProvider>
+    <Provider renderer={renderer}>
+      <ReflexProvider {...ctx}>
+        <Box m={1} w={[1, 1 / 2]} />
+      </ReflexProvider>
+    </Provider>
   ).toJSON()
-  const [ m, w1, w2 ] = sheet.cssRules
   t.snapshot(box)
-  t.is(m.style.margin, '6px')
-  t.is(w1.style.width, '100%')
-  t.is(w2.media[0], 'screen and (min-width:32em)')
+  const rules = renderer.renderToString()
+  t.snapshot(rules)
 })
