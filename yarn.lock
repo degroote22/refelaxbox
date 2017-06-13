@@ -4053,6 +4053,14 @@ react-dom@^15.5.4:
     object-assign "^4.1.0"
     prop-types "~15.5.7"
 
+react-fela@^5.0.0:
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/react-fela/-/react-fela-5.0.0.tgz#5412eb3a109f7bb95ff01aa375cbbbd6a3676762"
+  dependencies:
+    fela "^5.0.0"
+    fela-dom "^5.0.0"
+    prop-types "^15.5.8"
+
 react-live@^1.5.3:
   version "1.5.4"
   resolved "https://registry.yarnpkg.com/react-live/-/react-live-1.5.4.tgz#924ff7ef4bffd8c328855fd0ce535f6456ffcd10"

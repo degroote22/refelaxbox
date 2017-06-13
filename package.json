@@ -68,6 +68,7 @@
   "dependencies": {
     "fela": "^5.0.0",
     "fela-dom": "^5.0.0",
-    "prop-types": "^15.5.10"
+    "prop-types": "^15.5.10",
+    "react-fela": "^5.0.0"
   }
 }

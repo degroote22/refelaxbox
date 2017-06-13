@@ -1,15 +1,8 @@
-import sheet from './sheet'
 const REG = /^([wmp][trblxy]?|flex|wrap|column|auto|align|justify|order)$/
-const cache = {}
-
-import { createRenderer } from 'fela'
-import { render } from 'fela-dom'
-
-const renderer = createRenderer()
 
 const css = config => props => {
   const next = {}
-  const classNames = []
+  let fela = {}
 
   const breaks = [null, ...config.breakpoints]
   const sx = stylers(config)
@@ -20,21 +13,14 @@ const css = config => props => {
       continue
     }
     const cx = createRule(breaks, sx)(key, val)
-    cx.forEach(cn => classNames.push(cn))
+    fela = ({ ...fela, ...cx })
   }
 
-  next.className = join(next.className, ...classNames)
-
-  return next
+  return { next, fela }
 }
 
 css.reset = () => {
-  Object.keys(cache).forEach(key => {
-    delete cache[key]
-  })
-  while (sheet.cssRules.length) {
-    sheet.deleteRule(0)
-  }
+
 }
 
 const createRule = (breaks, sx) => (key, val) => {
@@ -44,15 +30,8 @@ const createRule = (breaks, sx) => (key, val) => {
   const rules = toArr(val).map((v, i) => {
     const bp = breaks[i]
     const decs = style(key, v)
-    console.log(decs)
-    console.log('bp', bp)
-
-    const className = renderer.renderRule(() => media(bp, decs))
-    console.log(className)
-
-    render(renderer)
-    return className
-  }).filter(r => r !== null)
+    return media(bp, decs)
+  }).reduce((sum, n) => ({ ...sum, ...n }), {})
 
   return rules
 }
